@@ -10,6 +10,11 @@
   box-sizing: border-box;
 }
 
+/* Component display rules must never reveal an element marked hidden. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;

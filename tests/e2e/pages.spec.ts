@@ -12,6 +12,7 @@ const pages = [
   { path: '/cerita/surat-untuk-ibu/baca', heading: 'Surat untuk Ibu' },
   { path: '/genre/keluarga', heading: 'Genre Keluarga' },
   { path: '/penulis/laras-wening', heading: 'Laras Wening' },
+  { path: '/rak', heading: 'Rak saya' },
 ];
 
 for (const { path, heading } of pages) {

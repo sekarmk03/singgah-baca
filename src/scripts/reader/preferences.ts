@@ -8,7 +8,8 @@ import {
 } from '../../lib/preferences';
 import { readJson, removeItem, STORAGE_KEYS, writeJson } from '../../lib/storage';
 
-const root = document.documentElement;
+/** Resolved on use so this module can be imported during server rendering. */
+const root = () => document.documentElement;
 
 export function loadPreferences(): ReaderPreferences {
   return sanitizePreferences(readJson(STORAGE_KEYS.preferences));
@@ -25,32 +26,35 @@ export function savePreferences(preferences: ReaderPreferences): void {
 /** Mirrors the inline boot script in PreferencesBoot.astro. */
 export function applyPreferences(preferences: ReaderPreferences): void {
   if (preferences.theme) {
-    root.dataset.theme = preferences.theme;
+    root().dataset.theme = preferences.theme;
   } else {
-    delete root.dataset.theme;
+    delete root().dataset.theme;
   }
 
   for (const key of Object.keys(PREFERENCE_CSS_VARIABLES) as NumericPreference[]) {
     const value = preferences[key];
     if (value === undefined) {
-      root.style.removeProperty(PREFERENCE_CSS_VARIABLES[key]);
+      root().style.removeProperty(PREFERENCE_CSS_VARIABLES[key]);
     } else {
-      root.style.setProperty(PREFERENCE_CSS_VARIABLES[key], `${value}${PREFERENCE_CSS_UNITS[key]}`);
+      root().style.setProperty(
+        PREFERENCE_CSS_VARIABLES[key],
+        `${value}${PREFERENCE_CSS_UNITS[key]}`,
+      );
     }
   }
 
-  root.dataset.justify = String(shouldJustify(preferences, isHyphenationSupported()));
+  root().dataset.justify = String(shouldJustify(preferences, isHyphenationSupported()));
 }
 
 /** The value currently in effect, including CSS defaults that differ per breakpoint. */
 export function currentValue(key: NumericPreference): number {
-  return parseFloat(getComputedStyle(root).getPropertyValue(PREFERENCE_CSS_VARIABLES[key]));
+  return parseFloat(getComputedStyle(root()).getPropertyValue(PREFERENCE_CSS_VARIABLES[key]));
 }
 
 export function isHyphenationSupported(): boolean {
-  return root.dataset.hyphenation === 'supported';
+  return root().dataset.hyphenation === 'supported';
 }
 
 export function isJustified(): boolean {
-  return root.dataset.justify === 'true';
+  return root().dataset.justify === 'true';
 }
