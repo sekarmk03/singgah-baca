@@ -1,0 +1,58 @@
+/*
+ * Theme tokens. Contrast ratios against the background are listed in the spec:
+ * body text >= 7:1, secondary text >= 4.5:1, accent (focus ring, ribbon, drop cap) >= 3:1.
+ */
+:root,
+:root[data-theme='paper'] {
+  --color-bg: #efe9da;
+  --color-text: #3a342b;
+  --color-text-muted: #655c50;
+  --color-accent: #7c2e2e;
+  --color-border: color-mix(in srgb, var(--color-text) 18%, transparent);
+  color-scheme: light;
+}
+
+:root[data-theme='sepia'] {
+  --color-bg: #e6d8bc;
+  --color-text: #3f3020;
+  --color-text-muted: #5f5037;
+  --color-accent: #6e2a22;
+  color-scheme: light;
+}
+
+:root[data-theme='night'] {
+  --color-bg: #1f1d1a;
+  --color-text: #cbc2b1;
+  --color-text-muted: #9a907f;
+  --color-accent: #c97d70;
+  color-scheme: dark;
+}
+
+/* Follow the system dark mode until the reader picks a theme explicitly. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-bg: #1f1d1a;
+    --color-text: #cbc2b1;
+    --color-text-muted: #9a907f;
+    --color-accent: #c97d70;
+    color-scheme: dark;
+  }
+}
+
+:root {
+  --font-serif: 'Literata', Georgia, 'Times New Roman', serif;
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --reader-font-size: 18px;
+  --reader-leading: 1.75;
+  --reader-measure: 34em;
+  --page-gutter: 20px;
+  --tap-size: 44px;
+}
+
+@media (min-width: 960px) {
+  :root {
+    --reader-font-size: 19px;
+    --page-gutter: 32px;
+  }
+}

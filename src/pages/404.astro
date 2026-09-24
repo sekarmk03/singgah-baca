@@ -1,0 +1,16 @@
+---
+import SiteHeader from '../components/SiteHeader.astro';
+import { t } from '../i18n/id';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title={t.notFound.title}>
+  <SiteHeader />
+  <main id="main" class="page">
+    <h1>{t.notFound.title}</h1>
+    <p>{t.notFound.message}</p>
+    <p class="ui">
+      <a href="/">{t.notFound.backToCatalog}</a>
+    </p>
+  </main>
+</BaseLayout>

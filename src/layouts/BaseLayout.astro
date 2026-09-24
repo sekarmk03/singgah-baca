@@ -1,0 +1,33 @@
+---
+import '../styles/global.css';
+import { t } from '../i18n/id';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = t.site.description } = Astro.props;
+const fullTitle = title ? `${title} · ${t.site.name}` : t.site.name;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#efe9da" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1f1d1a" media="(prefers-color-scheme: dark)" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      {t.site.skipToContent}
+    </a>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,174 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import { formatChapterPosition, formatReadingTime, t } from '../../../i18n/id';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getStories, type Chapter, type Story } from '../../../lib/stories';
+
+export const getStaticPaths = (async () => {
+  const stories = await getStories();
+  return stories.flatMap((story) =>
+    story.chapters.map((chapter, index) => ({
+      params: { slug: story.slug, chapter: chapter.slug },
+      props: { story, index },
+    })),
+  );
+}) satisfies GetStaticPaths;
+
+interface Props {
+  story: Story;
+  index: number;
+}
+
+const { story, index } = Astro.props;
+const chapter: Chapter = story.chapters[index];
+const previous = story.chapters[index - 1];
+const next = story.chapters[index + 1];
+const isNovel = story.data.category === 'novel';
+const { Content } = await render(chapter.entry);
+const pageTitle = isNovel ? `${chapter.title} · ${story.data.title}` : story.data.title;
+const storyUrl = `/cerita/${story.slug}`;
+---
+
+<BaseLayout title={pageTitle} description={story.data.synopsis}>
+  <header class="reader-bar ui">
+    <a href={storyUrl}>← {story.data.title}</a>
+  </header>
+  <main id="main" class="reader">
+    <header class="chapter-header">
+      {isNovel && <p class="ui muted">{story.data.title}</p>}
+      <h1>{isNovel ? chapter.title : story.data.title}</h1>
+      <p class="ui muted position">
+        {isNovel && `${formatChapterPosition(chapter.order, story.chapters.length)} · `}
+        {formatReadingTime(chapter.readingMinutes)}
+      </p>
+    </header>
+    <article class="prose">
+      <Content />
+    </article>
+    <nav class="chapter-nav ui" aria-label={t.reader.chapterNav}>
+      {previous && <a href={`${storyUrl}/${previous.slug}`}>← {t.reader.previous}</a>}
+      {next && (
+        <a class="next" href={`${storyUrl}/${next.slug}`}>
+          {t.reader.next} →
+        </a>
+      )}
+      {!next && <p class="end">{t.status[story.data.status]}</p>}
+    </nav>
+  </main>
+</BaseLayout>
+
+<style>
+  .reader-bar {
+    padding: 0.5rem var(--page-gutter);
+    font-size: 0.9375rem;
+  }
+
+  .reader-bar a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-size);
+    text-decoration: none;
+  }
+
+  .reader {
+    max-width: var(--reader-measure);
+    margin: 0 auto;
+    padding: 1rem var(--page-gutter) 4rem;
+    font-size: var(--reader-font-size);
+  }
+
+  .chapter-header {
+    margin: 2rem 0 2.5rem;
+    text-align: center;
+  }
+
+  .chapter-header p {
+    margin: 0;
+    font-size: 0.8125rem;
+  }
+
+  h1 {
+    margin: 0.5rem 0;
+    font-size: 1.75em;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .prose {
+    line-height: var(--reader-leading);
+    hyphens: auto;
+    text-align: left;
+  }
+
+  .prose :global(p) {
+    margin: 0;
+    text-indent: 1.6em;
+  }
+
+  /* The first paragraph of a chapter and after a scene break starts flush, novel style. */
+  .prose :global(p:first-child),
+  .prose :global(hr + p) {
+    text-indent: 0;
+  }
+
+  .prose :global(p:first-child::first-letter) {
+    float: left;
+    margin: 0.08em 0.1em 0 0;
+    color: var(--color-accent);
+    font-size: 3.4em;
+    font-weight: 600;
+    line-height: 0.8;
+  }
+
+  .prose :global(p:first-child::first-line) {
+    font-variant-caps: small-caps;
+    letter-spacing: 0.03em;
+  }
+
+  /* Scene break: Markdown `***` renders as <hr>, shown as "* * *". */
+  .prose :global(hr) {
+    margin: 1.5em 0;
+    border: 0;
+    text-align: center;
+  }
+
+  .prose :global(hr)::after {
+    content: '*\2003*\2003*';
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 520px) {
+    .prose {
+      text-align: justify;
+    }
+  }
+
+  .chapter-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.9375rem;
+  }
+
+  .chapter-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-size);
+  }
+
+  .next {
+    margin-left: auto;
+  }
+
+  .end {
+    margin: 0 0 0 auto;
+    align-self: center;
+    font-family: var(--font-serif);
+    font-style: italic;
+  }
+</style>

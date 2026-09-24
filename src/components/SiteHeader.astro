@@ -1,0 +1,27 @@
+---
+import { t } from '../i18n/id';
+---
+
+<header class="site-header ui">
+  <a class="brand" href="/">
+    {t.site.name}
+  </a>
+</header>
+
+<style>
+  .site-header {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 1rem var(--page-gutter) 0;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-size);
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+</style>
