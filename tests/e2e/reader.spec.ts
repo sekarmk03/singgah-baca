@@ -35,6 +35,10 @@ async function scrollBy(page: Page, delta: number) {
 /** Taps the middle of the screen, which brings back a toolbar hidden by scrolling. */
 async function revealToolbar(page: Page) {
   const toolbar = page.locator('[data-toolbar]');
+  // The toolbar reacts to scrolling on the next animation frame; let that settle first.
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  );
   if ((await toolbar.getAttribute('data-hidden')) === 'true') {
     const { width, height } = page.viewportSize()!;
     await page.mouse.click(width / 2, height / 2);
@@ -191,6 +195,8 @@ test.describe('navigation', () => {
     await page.goto(CHAPTER_1);
     await page.keyboard.press('ArrowRight');
     await expect(page).toHaveURL(new RegExp(`${CHAPTER_2}$`));
+    // The URL changes before the new page's module script has attached its key listener.
+    await page.waitForLoadState('load');
     await page.keyboard.press('ArrowLeft');
     await expect(page).toHaveURL(new RegExp(`${CHAPTER_1}$`));
   });
