@@ -1,0 +1,271 @@
+---
+import { t } from '../i18n/id';
+import { THEMES, type NumericPreference } from '../lib/preferences';
+
+const steppers: { key: NumericPreference; label: string; decrease: string; increase: string }[] = [
+  {
+    key: 'size',
+    label: t.settings.fontSize,
+    decrease: t.settings.fontSizeDecrease,
+    increase: t.settings.fontSizeIncrease,
+  },
+  {
+    key: 'leading',
+    label: t.settings.lineHeight,
+    decrease: t.settings.lineHeightDecrease,
+    increase: t.settings.lineHeightIncrease,
+  },
+  {
+    key: 'measure',
+    label: t.settings.measure,
+    decrease: t.settings.measureDecrease,
+    increase: t.settings.measureIncrease,
+  },
+];
+const themeOptions = [
+  { value: 'auto', label: t.settings.themeAuto },
+  ...THEMES.map((theme) => ({ value: theme, label: t.settings.themes[theme] })),
+];
+---
+
+<dialog class="settings ui" id="reader-settings" aria-labelledby="reader-settings-title">
+  <div class="sheet">
+    <div class="handle" data-sheet-handle aria-hidden="true"></div>
+    <header class="head">
+      <h2 id="reader-settings-title">{t.settings.title}</h2>
+      <button type="button" class="text-button" data-settings-close>
+        {t.settings.close}
+      </button>
+    </header>
+
+    <fieldset class="themes">
+      <legend>{t.settings.theme}</legend>
+      <div class="theme-options">
+        {themeOptions.map(({ value, label }) => (
+          <label class={`theme-option theme-${value}`}>
+            <input type="radio" name="theme" value={value} />
+            <span>{label}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    {steppers.map(({ key, label, decrease, increase }) => (
+      <div class="stepper" role="group" aria-labelledby={`stepper-${key}`}>
+        <span class="stepper-label" id={`stepper-${key}`}>
+          {label}
+        </span>
+        <button type="button" data-step={key} data-direction="-1" aria-label={decrease}>
+          −
+        </button>
+        <output data-output={key} aria-live="polite" />
+        <button type="button" data-step={key} data-direction="1" aria-label={increase}>
+          +
+        </button>
+      </div>
+    ))}
+
+    <label class="toggle">
+      <input type="checkbox" data-justify />
+      <span>
+        {t.settings.justify}
+        <small class="muted">{t.settings.justifyHint}</small>
+      </span>
+    </label>
+
+    <button type="button" class="text-button reset" data-settings-reset>
+      {t.settings.reset}
+    </button>
+  </div>
+</dialog>
+
+<style>
+  .settings {
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    margin: auto 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 16px 16px 0 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    box-shadow: 0 -4px 24px rgb(0 0 0 / 0.25);
+  }
+
+  .settings::backdrop {
+    background: rgb(0 0 0 / 0.35);
+  }
+
+  @media (min-width: 520px) {
+    .settings {
+      width: 360px;
+      margin: calc(56px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) auto auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgb(0 0 0 / 0.25);
+    }
+
+    .settings::backdrop {
+      background: transparent;
+    }
+
+    .handle {
+      display: none;
+    }
+  }
+
+  .sheet {
+    padding: 0.5rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+    touch-action: pan-y;
+  }
+
+  .handle {
+    width: 40px;
+    height: 4px;
+    margin: 0.25rem auto 0.5rem;
+    border-radius: 2px;
+    background: var(--color-text-muted);
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.0625rem;
+  }
+
+  fieldset {
+    margin: 0.75rem 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend,
+  .stepper-label {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  .theme-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .theme-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--tap-size);
+    border: 1px solid var(--color-border);
+    padding: 0 0.25rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+
+  /* Visually hidden but still focusable; the label is the click target. */
+  .theme-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .theme-option:has(input:checked) {
+    border: 2px solid var(--color-accent);
+  }
+
+  .theme-option:has(input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .theme-paper {
+    background: #efe9da;
+    color: #3a342b;
+  }
+
+  .theme-sepia {
+    background: #e6d8bc;
+    color: #3f3020;
+  }
+
+  .theme-night {
+    background: #1f1d1a;
+    color: #cbc2b1;
+  }
+
+  .stepper {
+    display: grid;
+    grid-template-columns: 1fr var(--tap-size) 7rem var(--tap-size);
+    align-items: center;
+    padding: 0.25rem 0;
+  }
+
+  .stepper button {
+    min-width: var(--tap-size);
+    min-height: var(--tap-size);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+
+  .stepper button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  output {
+    text-align: center;
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .toggle {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    min-height: var(--tap-size);
+    padding: 0.75rem 0;
+    cursor: pointer;
+  }
+
+  .toggle input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0.1rem 0 0;
+    accent-color: var(--color-accent);
+  }
+
+  .toggle small {
+    display: block;
+    font-size: 0.8125rem;
+  }
+
+  .text-button {
+    min-height: var(--tap-size);
+    padding: 0 0.75rem;
+    border: 0;
+    background: transparent;
+    color: var(--color-accent);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .reset {
+    margin-left: -0.75rem;
+  }
+</style>

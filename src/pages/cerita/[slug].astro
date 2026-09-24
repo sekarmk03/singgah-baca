@@ -19,6 +19,11 @@ const { story } = Astro.props;
 const { data } = story;
 const [firstChapter] = story.chapters;
 const isNovel = data.category === 'novel';
+const chapterLinks = story.chapters.map((chapter) => ({
+  slug: chapter.slug,
+  url: `/cerita/${story.slug}/${chapter.slug}`,
+  label: isNovel ? `Bab ${chapter.order} · ${chapter.title}` : '',
+}));
 ---
 
 <BaseLayout title={data.title} description={data.synopsis}>
@@ -37,9 +42,17 @@ const isNovel = data.category === 'novel';
       {formatReadingTime(story.readingMinutes)}
     </p>
     <p class="synopsis">{data.synopsis}</p>
-    <a class="ui button" href={`/cerita/${story.slug}/${firstChapter.slug}`}>
-      {t.story.start}
-    </a>
+    <div
+      class="start"
+      data-continue
+      data-story={story.slug}
+      data-chapters={JSON.stringify(chapterLinks)}
+    >
+      <a class="ui button" href={`/cerita/${story.slug}/${firstChapter.slug}`}>
+        {t.story.start}
+      </a>
+      <p class="ui muted last-read" hidden></p>
+    </div>
 
     {isNovel && (
       <section aria-labelledby="chapters-heading">
@@ -58,6 +71,10 @@ const isNovel = data.category === 'novel';
     )}
   </main>
 </BaseLayout>
+
+<script>
+  import '../../scripts/story-detail';
+</script>
 
 <style>
   .detail {
@@ -93,6 +110,11 @@ const isNovel = data.category === 'novel';
     color: var(--color-bg);
     font-weight: 600;
     text-decoration: none;
+  }
+
+  .last-read {
+    margin: 0.5rem 0 0;
+    font-size: 0.875rem;
   }
 
   h2 {

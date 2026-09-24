@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Lets environments with a preinstalled Chromium (e.g. cloud sandboxes) skip the browser download.
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
+const chromiumLaunchOptions = executablePath ? { executablePath } : undefined;
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -10,14 +11,28 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: 'http://localhost:4321',
-    launchOptions: executablePath ? { executablePath } : undefined,
   },
   projects: [
-    { name: 'mobile', use: { ...devices['Pixel 7'], viewport: { width: 360, height: 780 } } },
+    {
+      name: 'mobile',
+      use: {
+        ...devices['Pixel 7'],
+        viewport: { width: 360, height: 780 },
+        launchOptions: chromiumLaunchOptions,
+      },
+    },
     {
       name: 'desktop',
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 800 },
+        launchOptions: chromiumLaunchOptions,
+      },
     },
+    // Safari's engine; runs in CI where WebKit is installed, or locally with PLAYWRIGHT_WEBKIT=1.
+    ...(process.env.CI || process.env.PLAYWRIGHT_WEBKIT
+      ? [{ name: 'iphone', use: { ...devices['iPhone 13'] } }]
+      : []),
   ],
   webServer: {
     // `--ignore-lock` keeps Astro from auto-backgrounding the server when it detects an AI agent.

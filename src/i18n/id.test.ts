@@ -15,3 +15,13 @@ describe('Indonesian formatters', () => {
     expect(formatChapterPosition(2, 12)).toBe('Bab 2 dari 12');
   });
 });
+
+describe('reader setting labels', () => {
+  it('formats values the Indonesian way', async () => {
+    const { formatFontSize, formatLineHeight, formatMeasure } = await import('./id');
+    expect(formatFontSize(19)).toBe('19 px');
+    expect(formatLineHeight(1.75)).toBe('1,75');
+    expect(formatLineHeight(2)).toBe('2,00');
+    expect(formatMeasure(34)).toBe('± 65 karakter');
+  });
+});

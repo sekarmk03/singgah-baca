@@ -4,6 +4,7 @@
  */
 
 import type { StoryCategory } from '../lib/chapters';
+import type { ThemeName } from '../lib/preferences';
 
 export type StoryStatus = 'completed' | 'ongoing';
 
@@ -24,11 +25,40 @@ export const t = {
     by: 'oleh',
     chapters: 'Daftar bab',
     start: 'Mulai membaca',
+    continue: 'Lanjutkan membaca',
+    lastRead: 'Terakhir dibaca:',
   },
   reader: {
+    backToStory: 'Kembali ke detail cerita',
+    chapterPicker: 'Pilih bab',
+    settings: 'Pengaturan baca',
+    progress: 'Progres membaca bab ini',
     previous: 'Bab sebelumnya',
     next: 'Bab berikutnya',
     chapterNav: 'Navigasi bab',
+  },
+  settings: {
+    title: 'Pengaturan baca',
+    theme: 'Tema',
+    themeAuto: 'Otomatis',
+    themes: {
+      paper: 'Kertas',
+      sepia: 'Sepia',
+      night: 'Malam',
+    } satisfies Record<ThemeName, string>,
+    fontSize: 'Ukuran huruf',
+    fontSizeDecrease: 'Perkecil huruf',
+    fontSizeIncrease: 'Perbesar huruf',
+    lineHeight: 'Jarak baris',
+    lineHeightDecrease: 'Rapatkan jarak baris',
+    lineHeightIncrease: 'Renggangkan jarak baris',
+    measure: 'Lebar kolom',
+    measureDecrease: 'Persempit kolom',
+    measureIncrease: 'Perlebar kolom',
+    justify: 'Rata kiri-kanan',
+    justifyHint: 'Berlaku di layar selebar 520 px ke atas.',
+    reset: 'Atur ulang',
+    close: 'Tutup',
   },
   notFound: {
     title: 'Halaman tidak ditemukan',
@@ -78,4 +108,25 @@ export function formatChapterCount(count: number): string {
 /** "Bab 2 dari 12" */
 export function formatChapterPosition(order: number, total: number): string {
   return `Bab ${formatNumber(order)} dari ${formatNumber(total)}`;
+}
+
+/** "19 px" */
+export function formatFontSize(px: number): string {
+  return `${formatNumber(px)} px`;
+}
+
+/** "1,75" */
+export function formatLineHeight(value: number): string {
+  return new Intl.NumberFormat(LOCALE, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+/** Average Literata characters per em at body size, used for the column width label. */
+const CHARACTERS_PER_EM = 1.9;
+
+/** Column width in em as an approximate character count: "± 65 karakter" */
+export function formatMeasure(em: number): string {
+  return `± ${formatNumber(Math.round(em * CHARACTERS_PER_EM))} karakter`;
 }
