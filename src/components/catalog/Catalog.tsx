@@ -65,6 +65,7 @@ export default function Catalog(props: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const filterButtonRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
   const scrollRestored = useRef(false);
   const focusIndexAfterLoad = useRef<number | null>(null);
 
@@ -77,6 +78,9 @@ export default function Catalog(props: Props) {
       setQueryInput(parsed.query);
     };
     applyUrl();
+    // Anything typed before the page became interactive wins over the URL.
+    const typed = searchRef.current?.value ?? '';
+    if (typed) setQueryInput(typed);
     setInitialized(true);
     setProgress(readProgressMap());
 
@@ -244,6 +248,7 @@ export default function Catalog(props: Props) {
           {t.catalog.searchLabel}
         </label>
         <input
+          ref={searchRef}
           id="catalog-search"
           type="search"
           enterKeyHint="search"
