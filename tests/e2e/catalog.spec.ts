@@ -89,6 +89,24 @@ test('searching and filtering update the URL', async ({ page }) => {
   await expect(resultCount(page)).toHaveText('2 cerita');
 });
 
+test('keeps a query typed before the page became interactive', async ({ page }) => {
+  // Hold the catalog script back so typing happens before hydration, as on a slow phone.
+  let releaseScript = () => {};
+  const scriptHeld = new Promise<void>((resolve) => (releaseScript = resolve));
+  await page.route('**/_astro/Catalog.*.js', async (route) => {
+    await scriptHeld;
+    await route.continue();
+  });
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('searchbox', { name: /Cari judul/ }).fill('surat');
+  releaseScript();
+
+  await expect(resultCount(page)).toHaveText('1 cerita');
+  await expect(page.getByRole('searchbox', { name: /Cari judul/ })).toHaveValue('surat');
+  await expect(page).toHaveURL(/\?q=surat$/);
+});
+
 test('shows an empty state with a way out', async ({ page }) => {
   await page.goto('/?genre=horor');
   await expect(
