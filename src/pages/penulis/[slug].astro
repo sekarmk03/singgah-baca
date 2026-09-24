@@ -1,0 +1,73 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { StoryCard } from '../../components/catalog/StoryCard';
+import SiteHeader from '../../components/SiteHeader.astro';
+import { formatAuthorDescription, t } from '../../i18n/id';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { toCatalogEntry } from '../../lib/catalog-entry';
+import { getStories } from '../../lib/stories';
+
+export const getStaticPaths = (async () => {
+  const stories = await getStories();
+  const byAuthor = Map.groupBy(stories, (story) => story.author.id);
+  return [...byAuthor].map(([slug, authored]) => ({
+    params: { slug },
+    props: { author: authored[0].author, entries: authored.map(toCatalogEntry) },
+  }));
+}) satisfies GetStaticPaths;
+
+const { author, entries } = Astro.props;
+const { name, bio, links } = author.data;
+---
+
+<BaseLayout title={name} description={bio ?? formatAuthorDescription(name)}>
+  <SiteHeader />
+  <main id="main" class="page">
+    <h1>{name}</h1>
+    {bio && <p class="bio">{bio}</p>}
+    {links && links.length > 0 && (
+      <nav class="ui links" aria-label={t.authorPage.links}>
+        {links.map((link) => (
+          <a href={link.url} rel="me noopener">
+            {link.label}
+          </a>
+        ))}
+      </nav>
+    )}
+    <h2>{t.authorPage.works}</h2>
+    <div class="story-grid story-grid--wide">
+      {entries.map((entry) => (
+        <StoryCard entry={entry} headingLevel={3} />
+      ))}
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin: 1rem 0 0.5rem;
+    font-size: 1.75rem;
+  }
+
+  .bio {
+    max-width: 38rem;
+    font-size: 1.0625rem;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-size);
+  }
+
+  h2 {
+    margin: 2rem 0 0.5rem;
+    font-size: 1.25rem;
+  }
+</style>

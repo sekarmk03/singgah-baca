@@ -53,10 +53,16 @@ describe('sanitizeProgressMap', () => {
     expect(
       sanitizeProgressMap({
         valid: { chapter: 'bab', paragraph: 3, offset: 1.5, at },
+        withOrder: { chapter: 'bab', paragraph: 0, offset: 0, at, order: 2 },
+        badOrder: { chapter: 'bab', paragraph: 0, offset: 0, at, order: 0 },
         badParagraph: { chapter: 'bab', paragraph: -1, offset: 0, at },
         missingChapter: { paragraph: 1, offset: 0, at },
       }),
-    ).toEqual({ valid: { chapter: 'bab', paragraph: 3, offset: 1, at } });
+    ).toEqual({
+      valid: { chapter: 'bab', paragraph: 3, offset: 1, at },
+      withOrder: { chapter: 'bab', paragraph: 0, offset: 0, at, order: 2 },
+      badOrder: { chapter: 'bab', paragraph: 0, offset: 0, at },
+    });
     expect(sanitizeProgressMap([])).toEqual({});
     expect(sanitizeProgressMap(undefined)).toEqual({});
   });

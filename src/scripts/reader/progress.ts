@@ -24,6 +24,7 @@ export class ChapterProgress {
     private readonly prose: HTMLElement,
     private readonly story: string,
     private readonly chapter: string,
+    private readonly order: number,
   ) {}
 
   capture(): ChapterPosition {
@@ -50,7 +51,12 @@ export class ChapterProgress {
     window.clearTimeout(this.saveTimer);
     if (!this.ready) return;
     const map = readProgressMap();
-    map[this.story] = { chapter: this.chapter, ...this.capture(), at: new Date().toISOString() };
+    map[this.story] = {
+      chapter: this.chapter,
+      order: this.order,
+      ...this.capture(),
+      at: new Date().toISOString(),
+    };
     writeJson(STORAGE_KEYS.progress, map);
   }
 
@@ -79,8 +85,8 @@ export class ChapterProgress {
   }
 }
 
-export function initProgress(prose: HTMLElement, story: string, chapter: string) {
-  const progress = new ChapterProgress(prose, story, chapter);
+export function initProgress(prose: HTMLElement, story: string, chapter: string, order: number) {
+  const progress = new ChapterProgress(prose, story, chapter, order);
   void progress.start();
 
   window.addEventListener('scroll', () => progress.scheduleSave(), { passive: true });

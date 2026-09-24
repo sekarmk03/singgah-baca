@@ -13,6 +13,8 @@ export interface ChapterPosition {
 export interface StoryProgress extends ChapterPosition {
   /** Chapter slug. */
   chapter: string;
+  /** Chapter number at the time of saving, for "Bab 3 dari 12" on catalog cards. */
+  order?: number;
   /** ISO timestamp of the last save. */
   at: string;
 }
@@ -73,6 +75,9 @@ export function sanitizeProgressMap(raw: unknown): ProgressMap {
         offset: clamp01(entry.offset),
         at: entry.at,
       };
+      if (Number.isInteger(entry.order) && (entry.order as number) > 0) {
+        result[story].order = entry.order as number;
+      }
     }
   }
   return result;
