@@ -7,6 +7,7 @@ import ReaderToolbar from '../../../components/ReaderToolbar.astro';
 import { formatChapterPosition, formatReadingTime, t } from '../../../i18n/id';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getStories, type Chapter, type Story } from '../../../lib/stories';
+import { chapterJsonLd } from '../../../lib/structured-data';
 
 export const getStaticPaths = (async () => {
   const stories = await getStories();
@@ -43,7 +44,14 @@ const pickerChapters = isNovel
   : undefined;
 ---
 
-<BaseLayout title={pageTitle} description={story.data.synopsis}>
+<BaseLayout
+  title={pageTitle}
+  description={story.data.synopsis}
+  type="article"
+  image={story.data.cover?.src ?? `/og/${story.slug}.png`}
+  imageSize={story.data.cover && { width: story.data.cover.width, height: story.data.cover.height }}
+  jsonLd={chapterJsonLd(story, chapter, Astro.site!)}
+>
   <ReaderToolbar storyTitle={story.data.title} storyUrl={storyUrl} chapters={pickerChapters} />
   <main
     id="main"

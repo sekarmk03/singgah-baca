@@ -5,6 +5,7 @@ import { getGenreName } from '../../data/genres';
 import { formatChapterCount, formatDate, formatReadingTime, t } from '../../i18n/id';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getStories, type Story } from '../../lib/stories';
+import { storyJsonLd } from '../../lib/structured-data';
 
 export const getStaticPaths = (async () => {
   const stories = await getStories();
@@ -26,7 +27,14 @@ const chapterLinks = story.chapters.map((chapter) => ({
 }));
 ---
 
-<BaseLayout title={data.title} description={data.synopsis}>
+<BaseLayout
+  title={data.title}
+  description={data.synopsis}
+  type="book"
+  image={data.cover?.src ?? `/og/${story.slug}.png`}
+  imageSize={data.cover && { width: data.cover.width, height: data.cover.height }}
+  jsonLd={storyJsonLd(story, Astro.site!)}
+>
   <SiteHeader />
   <main id="main" class="page detail">
     <p class="ui muted category">
@@ -57,6 +65,18 @@ const chapterLinks = story.chapters.map((chapter) => ({
         {t.story.start}
       </a>
       <p class="ui muted last-read" hidden></p>
+    </div>
+    <div class="shelf-action">
+      <button
+        type="button"
+        class="button button--secondary"
+        data-shelf-toggle
+        data-story={story.slug}
+        data-pending
+      >
+        {t.shelf.save}
+      </button>
+      <p class="ui muted shelf-status" role="status"></p>
     </div>
 
     {isNovel && (
@@ -103,6 +123,26 @@ const chapterLinks = story.chapters.map((chapter) => ({
 
   .synopsis {
     font-size: 1.0625rem;
+  }
+
+  .shelf-action {
+    margin-top: 0.75rem;
+  }
+
+  /* Takes its space from the start so revealing it does not push the chapter list down. */
+  [data-pending] {
+    visibility: hidden;
+  }
+
+  /* Space for "Terakhir dibaca", reserved before first paint when there is reading progress. */
+  :global(:root[data-has-progress]) .start {
+    min-height: calc(var(--tap-size) + 2rem);
+  }
+
+  .shelf-status {
+    min-height: 1.5em;
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
   }
 
   .last-read {

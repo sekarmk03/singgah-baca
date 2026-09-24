@@ -1,5 +1,7 @@
 import { t } from '../i18n/id';
+import { toggleShelf } from '../lib/shelf';
 import { readProgressMap } from './reader/progress';
+import { loadShelf, saveShelf } from './reader-data';
 
 interface ChapterLink {
   slug: string;
@@ -26,4 +28,28 @@ if (container) {
       lastRead.hidden = false;
     }
   }
+}
+
+// "Simpan ke Rak" needs storage, so the button stays invisible (but keeps its space) until this runs.
+const shelfButton = document.querySelector<HTMLButtonElement>('[data-shelf-toggle]');
+
+if (shelfButton) {
+  const story = shelfButton.dataset.story ?? '';
+  const status = document.querySelector<HTMLElement>('.shelf-status')!;
+  const render = () => {
+    shelfButton.textContent = loadShelf().includes(story) ? t.shelf.remove : t.shelf.save;
+  };
+
+  shelfButton.addEventListener('click', () => {
+    const next = toggleShelf(loadShelf(), story);
+    if (!saveShelf(next)) {
+      status.textContent = t.shelf.storageUnavailable;
+      return;
+    }
+    status.textContent = next.includes(story) ? t.shelf.savedStatus : t.shelf.removedStatus;
+    render();
+  });
+
+  render();
+  delete shelfButton.dataset.pending;
 }

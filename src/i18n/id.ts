@@ -15,6 +15,8 @@ export const t = {
     description:
       'Perpustakaan cerpen dan novel berbahasa Indonesia yang nyaman dibaca di layar mana pun.',
     skipToContent: 'Lompat ke isi',
+    mainNav: 'Navigasi utama',
+    shelf: 'Rak saya',
   },
   catalog: {
     heading: 'Semua cerita',
@@ -91,6 +93,32 @@ export const t = {
     justifyHint: 'Berlaku di layar selebar 520 px ke atas.',
     reset: 'Atur ulang',
     close: 'Tutup',
+  },
+  shelf: {
+    title: 'Rak saya',
+    description: 'Cerita yang Anda simpan dan riwayat baca Anda di perangkat ini.',
+    save: 'Simpan ke Rak',
+    remove: 'Hapus dari Rak',
+    savedStatus: 'Cerita disimpan di Rak.',
+    removedStatus: 'Cerita dihapus dari Rak.',
+    savedHeading: 'Disimpan',
+    savedEmpty: 'Belum ada cerita yang disimpan. Pilih "Simpan ke Rak" di halaman cerita.',
+    historyHeading: 'Riwayat baca',
+    historyEmpty: 'Belum ada riwayat baca.',
+    continue: 'Lanjutkan',
+    dataHeading: 'Data di perangkat ini',
+    dataHint:
+      'Rak, riwayat baca, dan pengaturan hanya tersimpan di browser ini. Ekspor data untuk memindahkannya ke perangkat lain.',
+    export: 'Ekspor data',
+    import: 'Impor data',
+    clearHistory: 'Hapus riwayat baca',
+    clearConfirm: 'Hapus semua riwayat baca di perangkat ini? Cerita di Rak tidak ikut terhapus.',
+    imported: 'Data berhasil diimpor.',
+    importError: 'File tidak dapat dibaca. Pastikan file berasal dari menu Ekspor Singgah Baca.',
+    historyCleared: 'Riwayat baca sudah dihapus.',
+    storageUnavailable:
+      'Penyimpanan browser tidak tersedia, jadi Rak dan riwayat baca tidak bisa disimpan.',
+    loading: 'Memuat rak…',
   },
   genrePage: {
     refine: 'Saring lebih lanjut di katalog',
@@ -205,4 +233,9 @@ export function formatGenreDescription(name: string): string {
 /** "Cerita karya Laras Wening di Singgah Baca." */
 export function formatAuthorDescription(name: string): string {
   return `Cerita karya ${name} di ${siteName}.`;
+}
+
+/** "Terakhir dibaca 24 September 2026" */
+export function formatLastRead(date: Date): string {
+  return `Terakhir dibaca ${formatDate(date)}`;
 }

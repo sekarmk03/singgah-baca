@@ -1,16 +1,38 @@
 ---
 import '../styles/global.css';
+import literataRegular from '@fontsource/literata/files/literata-latin-400-normal.woff2?url';
+import literataSemibold from '@fontsource/literata/files/literata-latin-600-normal.woff2?url';
 import PreferencesBoot from '../components/PreferencesBoot.astro';
 import { t } from '../i18n/id';
 
 interface Props {
   title?: string;
   description?: string;
+  /** Keeps private or duplicate pages out of search results. */
+  noindex?: boolean;
+  /** Social preview image path; defaults to the site-wide image. */
+  image?: string;
+  /** Pixel size of `image`; generated images are 1200 × 630. */
+  imageSize?: { width: number; height: number };
+  type?: 'website' | 'book' | 'article';
+  /** Structured data (schema.org) for the page. */
+  jsonLd?: Record<string, unknown>;
 }
 
-const { title, description = t.site.description } = Astro.props;
+const {
+  title,
+  description = t.site.description,
+  noindex = false,
+  image = '/og/default.png',
+  imageSize = { width: 1200, height: 630 },
+  type = 'website',
+  jsonLd,
+} = Astro.props;
 const fullTitle = title ? `${title} · ${t.site.name}` : t.site.name;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const imageUrl = new URL(image, Astro.site);
+// `<` must not appear raw inside a script element.
+const jsonLdText = jsonLd && JSON.stringify(jsonLd).replaceAll('<', '\\u003c');
 ---
 
 <!doctype html>
@@ -21,10 +43,30 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={t.site.name} href="/rss.xml" />
+    <!-- Body and heading fonts; preloading them avoids a reflow when they replace the fallback. -->
+    <link rel="preload" href={literataRegular} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={literataSemibold} as="font" type="font/woff2" crossorigin />
     <meta name="theme-color" content="#efe9da" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#1f1d1a" media="(prefers-color-scheme: dark)" />
+
+    <meta property="og:site_name" content={t.site.name} />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title ?? t.site.name} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content={String(imageSize.width)} />
+    <meta property="og:image:height" content={String(imageSize.height)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title ?? t.site.name} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    {jsonLdText && <script type="application/ld+json" set:html={jsonLdText}></script>}
   </head>
   <body>
     <a class="skip-link" href="#main">

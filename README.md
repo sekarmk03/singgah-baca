@@ -42,6 +42,15 @@ src/content/stories/hujan-di-stasiun-terakhir/
 Invalid frontmatter, unknown authors or genres, and duplicate chapter numbers or slugs fail the
 build with an error that names the file.
 
+## What gets generated
+
+Besides the pages, each build writes `search-index.json` (catalog search), `og/*.png` (social
+preview images, drawn with Satori), `rss.xml`, `sitemap-index.xml` and `robots.txt`. The sitemap
+uses the production domain Vercel provides at build time.
+
+Reader data (settings, reading progress and the shelf) lives only in the browser's localStorage;
+`/rak` can export and import it as a JSON file.
+
 ## Conventions
 
 - All user-facing text is proper Indonesian and lives in `src/i18n/id.ts`.

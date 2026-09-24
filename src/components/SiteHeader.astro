@@ -6,22 +6,42 @@ import { t } from '../i18n/id';
   <a class="brand" href="/">
     {t.site.name}
   </a>
+  <nav aria-label={t.site.mainNav}>
+    <a href="/rak" aria-current={Astro.url.pathname === '/rak' ? 'page' : undefined}>
+      {t.site.shelf}
+    </a>
+  </nav>
 </header>
 
 <style>
   .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     max-width: 72rem;
     margin: 0 auto;
     padding: 1rem var(--page-gutter) 0;
   }
 
-  .brand {
+  .brand,
+  nav a {
     display: inline-flex;
     align-items: center;
     min-height: var(--tap-size);
+  }
+
+  .brand {
     font-family: var(--font-serif);
     font-size: 1.25rem;
     font-weight: 600;
     text-decoration: none;
+  }
+
+  nav a {
+    font-size: 0.9375rem;
+  }
+
+  nav a[aria-current='page'] {
+    font-weight: 600;
   }
 </style>
