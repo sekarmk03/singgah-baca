@@ -1,0 +1,62 @@
+---
+/**
+ * Applies stored reader preferences before the first paint so there is no white flash for the
+ * night theme and no jump when a custom font size loads. Must stay inline and tiny: it blocks
+ * rendering. The same rules live in src/lib/preferences.ts; e2e tests cover both paths.
+ */
+import {
+  PREFERENCE_CSS_UNITS,
+  PREFERENCE_CSS_VARIABLES,
+  PREFERENCE_LIMITS,
+  THEMES,
+} from '../lib/preferences';
+import { STORAGE_KEYS } from '../lib/storage';
+
+const config = {
+  storageKey: STORAGE_KEYS.preferences,
+  themes: THEMES,
+  limits: PREFERENCE_LIMITS,
+  variables: PREFERENCE_CSS_VARIABLES,
+  units: PREFERENCE_CSS_UNITS,
+};
+---
+
+<script is:inline define:vars={{ config }}>
+  (function () {
+    const root = document.documentElement;
+    let prefs = {};
+    try {
+      prefs = JSON.parse(localStorage.getItem(config.storageKey) || '{}') || {};
+    } catch {
+      // Storage blocked or corrupt: fall back to defaults.
+    }
+
+    if (config.themes.indexOf(prefs.theme) !== -1) root.setAttribute('data-theme', prefs.theme);
+
+    for (const key in config.variables) {
+      const value = prefs[key];
+      const range = config.limits[key];
+      if (typeof value === 'number' && value >= range.min && value <= range.max) {
+        root.style.setProperty(config.variables[key], value + config.units[key]);
+      }
+    }
+
+    // Justified text is only comfortable when the browser can hyphenate Indonesian. Probe it by
+    // checking whether a long word wraps inside a narrow box.
+    const probe = document.createElement('span');
+    probe.lang = 'id';
+    probe.textContent = 'ketidakbertanggungjawaban';
+    probe.style.cssText =
+      'position:absolute;visibility:hidden;display:block;width:4em;font:16px/16px serif;' +
+      'hyphens:auto;-webkit-hyphens:auto;overflow-wrap:normal;word-break:normal';
+    root.appendChild(probe);
+    const hyphenates = probe.offsetHeight > 16;
+    root.removeChild(probe);
+
+    root.setAttribute('data-hyphenation', hyphenates ? 'supported' : 'unsupported');
+    root.setAttribute(
+      'data-justify',
+      String(typeof prefs.justify === 'boolean' ? prefs.justify : hyphenates),
+    );
+  })();
+</script>

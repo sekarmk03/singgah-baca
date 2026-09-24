@@ -1,0 +1,107 @@
+---
+import { t } from '../i18n/id';
+
+interface Props {
+  storyTitle: string;
+  storyUrl: string;
+  /** Novel chapters for the picker; omitted for short stories. */
+  chapters?: { url: string; label: string; current: boolean }[];
+}
+
+const { storyTitle, storyUrl, chapters } = Astro.props;
+---
+
+<header class="toolbar ui" data-toolbar>
+  <a class="back" href={storyUrl} aria-label={`${t.reader.backToStory}: ${storyTitle}`}>
+    <span aria-hidden="true">←</span>
+    <span class="back-title">{storyTitle}</span>
+  </a>
+  {chapters && (
+    <select class="picker" data-chapter-picker aria-label={t.reader.chapterPicker}>
+      {chapters.map(({ url, label, current }) => (
+        <option value={url} selected={current}>
+          {label}
+        </option>
+      ))}
+    </select>
+  )}
+  <button
+    type="button"
+    class="settings-button"
+    data-settings-open
+    aria-haspopup="dialog"
+    aria-controls="reader-settings"
+    aria-label={t.reader.settings}
+  >
+    Aa
+  </button>
+</header>
+
+<style>
+  .toolbar {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: calc(56px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) calc(40px + env(safe-area-inset-right)) 0
+      max(var(--page-gutter), env(safe-area-inset-left));
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+    font-size: 0.9375rem;
+    transition: transform 200ms ease;
+  }
+
+  .toolbar[data-hidden='true'] {
+    transform: translateY(-100%);
+  }
+
+  .back {
+    display: flex;
+    flex: 1;
+    gap: 0.5rem;
+    align-items: center;
+    min-width: 0;
+    min-height: var(--tap-size);
+    text-decoration: none;
+  }
+
+  .back-title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* On phones the chapter picker needs the room; the arrow keeps its full accessible name. */
+  @media (max-width: 519px) {
+    .back-title {
+      display: none;
+    }
+  }
+
+  .picker {
+    max-width: 10rem;
+    min-height: var(--tap-size);
+    padding: 0 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg);
+    color: inherit;
+    font: inherit;
+    text-overflow: ellipsis;
+  }
+
+  .settings-button {
+    min-width: var(--tap-size);
+    min-height: var(--tap-size);
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    cursor: pointer;
+  }
+</style>

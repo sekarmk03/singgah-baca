@@ -1,0 +1,29 @@
+---
+import { t } from '../i18n/id';
+---
+
+<div
+  class="ribbon"
+  data-ribbon
+  role="progressbar"
+  aria-label={t.reader.progress}
+  aria-valuemin="0"
+  aria-valuemax="100"
+  aria-valuenow="0"
+></div>
+
+<style>
+  /* Bookmark ribbon hanging from the top-right corner; it grows as the chapter is read. */
+  .ribbon {
+    --progress: 0;
+    position: fixed;
+    top: 0;
+    right: max(12px, env(safe-area-inset-right));
+    z-index: 11;
+    width: 16px;
+    height: calc(20px + var(--progress) * 76px + env(safe-area-inset-top));
+    background: var(--color-accent);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 7px), 0 100%);
+    pointer-events: none;
+  }
+</style>
