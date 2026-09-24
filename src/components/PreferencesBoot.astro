@@ -1,7 +1,8 @@
 ---
 /**
  * Applies stored reader preferences before the first paint so there is no white flash for the
- * night theme and no jump when a custom font size loads. Must stay inline and tiny: it blocks
+ * night theme and no jump when a custom font size loads. Also flags stored reading progress so the
+ * catalog can reserve space for "Lanjutkan membaca". Must stay inline and tiny: it blocks
  * rendering. The same rules live in src/lib/preferences.ts; e2e tests cover both paths.
  */
 import {
@@ -14,6 +15,7 @@ import { STORAGE_KEYS } from '../lib/storage';
 
 const config = {
   storageKey: STORAGE_KEYS.preferences,
+  progressKey: STORAGE_KEYS.progress,
   themes: THEMES,
   limits: PREFERENCE_LIMITS,
   variables: PREFERENCE_CSS_VARIABLES,
@@ -27,6 +29,10 @@ const config = {
     let prefs = {};
     try {
       prefs = JSON.parse(localStorage.getItem(config.storageKey) || '{}') || {};
+      // Lets the catalog reserve room for "Lanjutkan membaca" before it renders.
+      if ((localStorage.getItem(config.progressKey) || '{}').length > 2) {
+        root.setAttribute('data-has-progress', '');
+      }
     } catch {
       // Storage blocked or corrupt: fall back to defaults.
     }

@@ -5,7 +5,7 @@ import { initSettings } from './settings';
 const reader = document.querySelector<HTMLElement>('[data-reader]');
 
 if (reader) {
-  const { story = '', chapter = '', previousUrl, nextUrl } = reader.dataset;
+  const { story = '', chapter = '', chapterOrder = '1', previousUrl, nextUrl } = reader.dataset;
   const prose = reader.querySelector<HTMLElement>('[data-prose]')!;
   const toolbar = document.querySelector<HTMLElement>('[data-toolbar]')!;
 
@@ -16,7 +16,7 @@ if (reader) {
   const picker = toolbar.querySelector<HTMLSelectElement>('[data-chapter-picker]');
   if (picker) initChapterPicker(picker);
 
-  const progress = initProgress(prose, story, chapter);
+  const progress = initProgress(prose, story, chapter, Number(chapterOrder));
   initSettings(
     document.querySelector<HTMLDialogElement>('#reader-settings')!,
     toolbar.querySelector<HTMLButtonElement>('[data-settings-open]')!,

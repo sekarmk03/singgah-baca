@@ -5,8 +5,7 @@
 
 import type { StoryCategory } from '../lib/chapters';
 import type { ThemeName } from '../lib/preferences';
-
-export type StoryStatus = 'completed' | 'ongoing';
+import type { Duration, SortOrder, StoryStatus } from '../lib/url-params';
 
 export const siteName = 'Singgah Baca';
 
@@ -20,6 +19,39 @@ export const t = {
   catalog: {
     heading: 'Semua cerita',
     empty: 'Belum ada cerita yang terbit.',
+    searchLabel: 'Cari judul, penulis, atau kata kunci',
+    searchPlaceholder: 'Cari cerita…',
+    filters: 'Filter',
+    all: 'Semua',
+    category: 'Kategori',
+    genre: 'Genre',
+    author: 'Penulis',
+    authorSearch: 'Cari penulis',
+    status: 'Status',
+    duration: 'Durasi baca',
+    durations: {
+      short: '< 10 menit',
+      medium: '10–60 menit',
+      long: '> 60 menit',
+    } satisfies Record<Duration, string>,
+    sort: 'Urutkan',
+    sorts: {
+      relevance: 'Paling relevan',
+      newest: 'Terbaru',
+      updated: 'Baru diperbarui',
+      title: 'Judul A–Z',
+      shortest: 'Terpendek',
+    } satisfies Record<SortOrder, string>,
+    activeFilters: 'Filter aktif',
+    clearAll: 'Hapus semua filter',
+    removeFilter: 'Hapus filter',
+    noResults: 'Tidak ada cerita yang cocok. Coba kurangi filter atau ubah kata kunci.',
+    loadMore: 'Muat lebih banyak',
+    loadError: 'Pencarian belum bisa dimuat. Periksa koneksi, lalu muat ulang halaman.',
+    closeFilters: 'Tutup',
+    continueReading: 'Lanjutkan membaca',
+    readingNow: 'Sedang dibaca',
+    results: 'Daftar cerita',
   },
   story: {
     by: 'oleh',
@@ -59,6 +91,13 @@ export const t = {
     justifyHint: 'Berlaku di layar selebar 520 px ke atas.',
     reset: 'Atur ulang',
     close: 'Tutup',
+  },
+  genrePage: {
+    refine: 'Saring lebih lanjut di katalog',
+  },
+  authorPage: {
+    works: 'Karya',
+    links: 'Tautan',
   },
   notFound: {
     title: 'Halaman tidak ditemukan',
@@ -129,4 +168,41 @@ const CHARACTERS_PER_EM = 1.9;
 /** Column width in em as an approximate character count: "± 65 karakter" */
 export function formatMeasure(em: number): string {
   return `± ${formatNumber(Math.round(em * CHARACTERS_PER_EM))} karakter`;
+}
+
+/** "12 cerita" */
+export function formatStoryCount(count: number): string {
+  return `${formatNumber(count)} cerita`;
+}
+
+/** "Filter (3)" */
+export function formatFilterButton(activeCount: number): string {
+  return activeCount > 0
+    ? `${t.catalog.filters} (${formatNumber(activeCount)})`
+    : t.catalog.filters;
+}
+
+/** "Tampilkan 24 cerita" */
+export function formatShowResults(count: number): string {
+  return `Tampilkan ${formatStoryCount(count)}`;
+}
+
+/** "Misteri (12)" */
+export function formatOptionCount(label: string, count: number): string {
+  return `${label} (${formatNumber(count)})`;
+}
+
+/** "Genre Drama" */
+export function formatGenreTitle(name: string): string {
+  return `Genre ${name}`;
+}
+
+/** "Cerpen dan novel bergenre drama di Singgah Baca." */
+export function formatGenreDescription(name: string): string {
+  return `Cerpen dan novel bergenre ${name.toLocaleLowerCase('id')} di ${siteName}.`;
+}
+
+/** "Cerita karya Laras Wening di Singgah Baca." */
+export function formatAuthorDescription(name: string): string {
+  return `Cerita karya ${name} di ${siteName}.`;
 }

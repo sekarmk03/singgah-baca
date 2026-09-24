@@ -14,9 +14,8 @@ import {
   loadPreferences,
   savePreferences,
 } from './preferences';
+import { attachSwipeToClose, closeOnBackdropClick } from '../bottom-sheet';
 import type { ChapterProgress } from './progress';
-
-const SWIPE_CLOSE_PX = 80;
 
 const formatters: Record<NumericPreference, (value: number) => string> = {
   size: formatFontSize,
@@ -59,10 +58,7 @@ export function initSettings(
   });
   dialog.addEventListener('close', () => opener.focus());
 
-  // A click on the backdrop lands on the <dialog> itself; clicks inside land on its children.
-  dialog.addEventListener('click', (event) => {
-    if (event.target === dialog) dialog.close();
-  });
+  closeOnBackdropClick(dialog);
   dialog.querySelector('[data-settings-close]')!.addEventListener('click', () => dialog.close());
 
   dialog.addEventListener('change', (event) => {
@@ -87,32 +83,9 @@ export function initSettings(
 
   dialog.querySelector('[data-settings-reset]')!.addEventListener('click', () => update({}));
 
-  initSwipeToClose(dialog);
-}
-
-/** Bottom sheet: dragging the handle area down closes the panel. */
-function initSwipeToClose(dialog: HTMLDialogElement): void {
-  const handle = dialog.querySelector<HTMLElement>('.head')!;
-  const sheet = dialog.querySelector<HTMLElement>('.sheet')!;
-  let startY: number | undefined;
-
-  handle.addEventListener('pointerdown', (event) => {
-    if ((event.target as Element).closest('button')) return;
-    startY = event.clientY;
-    handle.setPointerCapture(event.pointerId);
-  });
-  handle.addEventListener('pointermove', (event) => {
-    if (startY === undefined) return;
-    const distance = Math.max(0, event.clientY - startY);
-    sheet.style.transform = `translateY(${distance}px)`;
-  });
-  const end = (event: PointerEvent) => {
-    if (startY === undefined) return;
-    const distance = event.clientY - startY;
-    startY = undefined;
-    sheet.style.transform = '';
-    if (distance > SWIPE_CLOSE_PX) dialog.close();
-  };
-  handle.addEventListener('pointerup', end);
-  handle.addEventListener('pointercancel', end);
+  attachSwipeToClose(
+    dialog,
+    dialog.querySelector<HTMLElement>('.head')!,
+    dialog.querySelector<HTMLElement>('.sheet')!,
+  );
 }

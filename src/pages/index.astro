@@ -1,50 +1,44 @@
 ---
+import Catalog from '../components/catalog/Catalog';
 import SiteHeader from '../components/SiteHeader.astro';
-import StoryCard from '../components/StoryCard.astro';
+import { genres } from '../data/genres';
 import { t } from '../i18n/id';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { EMPTY_STATE, PAGE_SIZE, runCatalog } from '../lib/catalog';
+import { toCatalogEntry } from '../lib/catalog-entry';
 import { getStories } from '../lib/stories';
 
 const stories = await getStories();
+const entries = stories.map(toCatalogEntry);
+const initial = runCatalog(entries, EMPTY_STATE, undefined);
+
+const authors = [...new Map(entries.map((entry) => [entry.authorSlug, entry.authorName]))]
+  .map(([slug, name]) => ({ slug, name }))
+  .sort((a, b) => a.name.localeCompare(b.name, 'id'));
 ---
 
 <BaseLayout>
   <SiteHeader />
   <main id="main" class="page">
     <h1>{t.catalog.heading}</h1>
-    {stories.length === 0 ? (
+    {entries.length === 0 ? (
       <p class="muted">{t.catalog.empty}</p>
     ) : (
-      <div class="grid">
-        {stories.map((story) => (
-          <StoryCard story={story} />
-        ))}
-      </div>
+      <Catalog
+        client:load
+        initialEntries={initial.entries.slice(0, PAGE_SIZE)}
+        initialFacets={initial.facets}
+        initialTotal={entries.length}
+        genres={genres.map(({ slug, name }) => ({ slug, name }))}
+        authors={authors}
+      />
     )}
   </main>
 </BaseLayout>
 
 <style>
   h1 {
-    font-size: 1.75rem;
     margin: 1rem 0;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    column-gap: 2rem;
-  }
-
-  @media (min-width: 520px) {
-    .grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 960px) {
-    .grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+    font-size: 1.75rem;
   }
 </style>
